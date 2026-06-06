@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import sqlite3
 
 class TransformardorDados:
     def __init__(self, dados_brutos):
@@ -25,6 +26,8 @@ class TransformardorDados:
         # 3. Remove produtos com nomes exatamente iguais
         df = df.drop_duplicates(subset=['Produto'])
 
-        caminho_arquivo = f"data/processed/extrator_produtos.csv"
-        df.to_csv(caminho_arquivo, index=False)
-        print("Arquivo salvo e limpo com sucesso!")
+        conexao = sqlite3.connect('banco_produtos.db')
+        cursor = conexao.cursor()
+        df.to_sql("tabela_produtos", conexao, if_exists="replace", index=False)
+        conexao.close()
+        print("Dados limpos e salvos no Banco SQL com sucesso!")
