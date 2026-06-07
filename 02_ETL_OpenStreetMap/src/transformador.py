@@ -13,10 +13,13 @@ class TransformarDados:
 
         for resultado in resultados:
             display_name = resultado['display_name']
-            latitude = resultado['lat']
-            longitude = resultado['lon']
+            latitude = float(resultado['lat'])
+            longitude = float(resultado['lon'])
             
             self.dados_limpos.append({"Display_Name" : display_name, "Latitude" : latitude, "Longitude" : longitude})
+
+    def retornar_dados(self):
+        return self.dados_limpos
 
     def salvar_db(self):
 
