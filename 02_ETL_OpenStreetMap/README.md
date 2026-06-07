@@ -1,19 +1,22 @@
-# 🗺️ ETL de Geocodificação para Rotas Logísticas
+# 🗺️ API RESTful de Roteirização e Geocodificação Nacional
 
-Este projeto é um pipeline de dados (ETL - Extract, Transform, Load) focado em operações logísticas. O sistema converte lotes de endereços em texto bruto para coordenadas geográficas exatas (Latitude e Longitude), preparando a base de dados para cálculos de distâncias, auditoria de rotas e sistemas de roteirização de frotas.
+Este projeto evoluiu de um pipeline de extração em lote (ETL) para uma **API RESTful** de alta performance focada em logística. O sistema recebe pedidos de rotas em tempo real, valida a existência dos municípios na base de dados oficial do governo brasileiro, converte os endereços em coordenadas geográficas e calcula a distância exata em quilômetros utilizando trigonometria esférica.
 
-## 🏗️ Arquitetura e Fluxo de Dados
+## 🏗️ Padrão de Arquitetura (Controller-Service)
 
-O código foi construído seguindo os princípios de **Clean Architecture**, isolando responsabilidades para facilitar a manutenção e escalabilidade:
+O backend foi estruturado utilizando o padrão **Controller-Service** para isolar as regras de negócio das rotas da API, garantindo escalabilidade e fácil manutenção para sistemas de auditoria e controle de frota:
 
-* `src/extrator.py`: Motor de extração conectado à API pública do OpenStreetMap (Nominatim). Implementa tratamento de requisições, envio de cabeçalhos de autenticação (User-Agent) e controle de **Rate Limiting** (`time.sleep`) para evitar banimento de IP em requisições em lote.
-* `src/transformador.py`: Camada de processamento utilizando **Pandas**. Responsável por escavar os JSONs aninhados da API, isolar os dados de interesse e converter o formato de texto das coordenadas para decimais numéricos precisos (`pd.to_numeric`).
-* `src/main.py`: O orquestrador central do pipeline.
-* `src/analise_sql.py`: Script para consumo do banco de dados relacional via queries SQL.
+* **`servidor.py` (Controller):** Ponto de entrada da API construído com **FastAPI**. Gerencia as requisições HTTP, define os modelos de dados esperados (Pydantic) e lida com o tratamento de erros (HTTP 400).
+* **`service.py` (Service):** O cérebro orquestrador que conecta as camadas de extração, transformação, validação e matemática.
+* **`extrator.py`:** Integração com a API do OpenStreetMap (Nominatim), com tratamento rigoroso de *Rate Limiting* para requisições externas.
+* **`transformador.py`:** Camada de Data Cleaning utilizando **Pandas** para isolar chaves de JSONs aninhados e forçar a tipagem numérica das coordenadas.
+* **`validador.py`:** Filtro de segurança integrado em tempo real à **API pública do IBGE** para garantir a integridade dos dados de origem e destino no território nacional.
+* **`calculadora_rotas.py`:** Motor trigonométrico que aplica a **Fórmula de Haversine** (`math.radians`, `math.sin`, `math.cos`) para calcular distâncias considerando a curvatura da Terra.
 
-## 🚀 Tecnologias Utilizadas
+## 🚀 Tecnologias e Bibliotecas
 
 * **Python 3**
-* **Pandas** (Transformação e Data Cleaning Matemático)
-* **Requests** (Consumo de APIs e manipulação de Headers)
-* **SQLite3** (Armazenamento em Banco de Dados Relacional local)
+* **FastAPI & Uvicorn** (Criação do Servidor Web e Documentação Swagger)
+* **Pandas** (Tratamento de Dados)
+* **Requests** (Consumo de APIs de Terceiros e Governamentais)
+* **Pydantic** (Validação de Tipos de Dados HTTP)

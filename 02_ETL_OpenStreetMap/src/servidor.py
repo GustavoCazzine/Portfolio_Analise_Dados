@@ -15,6 +15,9 @@ class RequisicaoRota(BaseModel):
 @app.post("/calcular_rota")
 async def root(requisicao: RequisicaoRota):
 
+    if not service.validar_cidade(requisicao.cidade_origem) or not service.validar_cidade(requisicao.cidade_destino):
+        raise HTTPException(status_code=400, detail="Uma ou ambas as cidades são inválidas ou não constam no IBGE.")
+
     cidade1 = service.pegar_dados(requisicao.cidade_origem)
     cidade2 = service.pegar_dados(requisicao.cidade_destino)
 

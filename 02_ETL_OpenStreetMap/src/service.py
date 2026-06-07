@@ -1,9 +1,11 @@
 from .extrator import ExtratorDados
 from .transformador import TransformarDados
 from .calculadora_rotas import calcular_distancia
-
+from .validador import validar_cidade
 class Service:
 
+    def validar_cidade(self, cidade):
+        return validar_cidade(cidade)
 
     def pegar_dados(self, cidade):
         extrator = ExtratorDados(cidade)
